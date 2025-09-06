@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+import Image from "next/image";
 import { useRef, useState } from "react";
 
 export default function Page() {
@@ -61,6 +62,9 @@ export default function Page() {
         </div>
       </section>
 
+      {/* ★ 事例（2カード） */}
+      <UseCases onContact={goContact} />
+
       {/* お悩み → 解決提示（ニーズ喚起） */}
       <section className="bg-stone-50 py-14">
         <div className="mx-auto max-w-5xl px-5">
@@ -118,7 +122,7 @@ export default function Page() {
         />
       </section>
 
-      {/* おすすめ業種（整列＆読みやすさ調整） */}
+      {/* おすすめ業種・事業者 */}
       <section className="py-12 bg-amber-50" id="recommended">
         <div className="mx-auto max-w-6xl px-5">
           <h2 className="text-2xl md:text-3xl font-bold text-stone-900 mb-6 text-center">
@@ -178,7 +182,7 @@ export default function Page() {
       <section className="bg-white py-16">
         <div className="mx-auto max-w-5xl px-5 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-stone-900 mb-8">選ばれる理由</h2>
-        <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             <MetricCard kpi="400社+" label="導入実績" note="多業種・多エリアで活用" />
             <MetricCard kpi="可視化" label="専用レポートで即改善" note="数字で判断できる" />
             <MetricCard kpi="継続率90%" label="継続利用の高さ" note="成果に直結する運用" accent />
@@ -215,7 +219,7 @@ export default function Page() {
       <section className="bg-gradient-to-r from-amber-500 to-amber-600 py-16 text-white">
         <div className="mx-auto max-w-4xl px-5 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">まずは無料診断から。</h2>
-          <p className="text-lg mb-8 opacity-90">
+        <p className="text-lg mb-8 opacity-90">
             競合URLの初期提案と、HP採点の結果をもとに最短ルートをご提案します。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -239,7 +243,7 @@ export default function Page() {
         <div className="rounded-2xl bg-white shadow-lg ring-1 ring-amber-200/60 p-8">
           <ContactForm />
           <p className="mt-4 text-xs text-stone-500 text-center">
-            送信先：info@yamato-ai.jp<br />
+            送信先：info@yamato-ai.com<br />
             ※ 送信いただいた情報は適切に管理し、営業目的以外では使用いたしません。
           </p>
         </div>
@@ -347,7 +351,6 @@ function ContactForm() {
     const form = e.currentTarget;
     const fd = new FormData(form);
 
-    // 型安全に取り出し（any なし）
     const data: ContactPayload = {
       name: String(fd.get("name") ?? ""),
       company: fd.get("company") ? String(fd.get("company")) : undefined,
@@ -367,8 +370,8 @@ function ContactForm() {
         alert("送信しました。折り返しご連絡します。");
         form.reset();
       } else {
-        const body = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(body.error || "送信に失敗しました");
+        const body = (await res.json().catch(() => ({}))) as { error?: string; hint?: string };
+        alert(`送信に失敗しました。\n${body?.error ?? ""}${body?.hint ? `\nヒント: ${body.hint}` : ""}`);
       }
     } catch {
       alert("送信に失敗しました。時間をおいて再度お試しください。");
@@ -432,5 +435,157 @@ function FormField({
         className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
       />
     </div>
+  );
+}
+
+/* =========================
+ * 事例セクション（2カード）
+ * ========================= */
+function UseCases({ onContact }: { onContact: () => void }) {
+  return (
+    <section id="usecases" className="bg-amber-50/60 border-y border-amber-100 py-14">
+      <div className="mx-auto max-w-6xl px-5">
+        {/* 見出し */}
+        <div className="text-center mb-10">
+          <span className="inline-flex items-center gap-2 rounded-full bg-amber-100 text-amber-800 px-4 py-1.5 text-sm font-semibold">
+            まずは「勝てる」使い方から
+          </span>
+          <h2 className="mt-4 text-3xl md:text-4xl font-extrabold tracking-tight text-stone-900">
+            すぐ始められる<strong className="text-amber-600">2つの勝ち筋</strong>
+          </h2>
+          <p className="mt-3 text-stone-600">
+            競合の流入を“そのまま”刈り取る。無駄打ちゼロで、顕在層だけに届けます。
+          </p>
+        </div>
+
+        {/* 2カード */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* 宿泊・飲食向け */}
+          <article className="group overflow-hidden rounded-2xl bg-white ring-1 ring-amber-200/70 shadow-sm transition hover:shadow-md">
+            <div className="relative">
+              <div className="aspect-[16/9] w-full bg-gradient-to-br from-amber-100 to-white">
+                <Image
+                  src="/usecase-travel.jpg"
+                  alt="旅行計画ユーザーに日本の宿・飲食を先出し"
+                  width={1200}
+                  height={675}
+                  className="w-full h-full object-cover"
+                  priority={false}
+                />
+              </div>
+              <span className="absolute left-4 top-4 rounded-full bg-amber-600 text-white text-xs font-bold px-3 py-1 shadow">
+                宿泊・飲食 向け
+              </span>
+            </div>
+            <div className="p-6 space-y-4">
+              <h3 className="text-xl font-bold text-stone-900">
+                海外で旅行計画中の人に、<span className="text-amber-600">日本の宿・飲食を先出し</span>
+              </h3>
+
+              <ol className="space-y-2 text-stone-700">
+                <li className="flex items-start gap-2">
+                  <StepBadge>1</StepBadge>
+                  <span>
+                    海外にいる段階で<strong>大手旅行サイト</strong>（例：
+                    <Tag>booking.com</Tag> <Tag>expedia.com</Tag> <Tag>agoda.com</Tag> <Tag>trip.com</Tag> など）を閲覧しているユーザーを指定
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <StepBadge>2</StepBadge>
+                  <span>その閲覧者<strong>“だけ”</strong>に、日本のホテル・旅館・飲食店の広告を配信</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <StepBadge>3</StepBadge>
+                  <span>海外段階での想起獲得 → <strong>旅程に組み込み</strong>やすく、予約・来店に直結</span>
+                </li>
+              </ol>
+
+              <ul className="text-sm text-stone-600 list-disc ps-5">
+                <li>海外配信はまだ競合が少なく<strong>クリック単価が安定</strong>しやすい</li>
+                <li>渡航前に情報を抑えるため<strong>予約率が高い</strong></li>
+              </ul>
+
+              <div className="pt-2">
+                <button
+                  onClick={onContact}
+                  className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-5 py-3 font-semibold shadow transition"
+                >
+                  このパターンで無料相談
+                </button>
+              </div>
+            </div>
+          </article>
+
+          {/* 歯医者向け */}
+          <article className="group overflow-hidden rounded-2xl bg-white ring-1 ring-amber-200/70 shadow-sm transition hover:shadow-md">
+            <div className="relative">
+              <div className="aspect-[16/9] w-full bg-gradient-to-br from-amber-100 to-white">
+                <Image
+                  src="/usecase-dentist.jpg"
+                  alt="SEO1位の閲覧者だけに配信する歯科事例"
+                  width={1200}
+                  height={675}
+                  className="w-full h-full object-cover"
+                  priority={false}
+                />
+              </div>
+              <span className="absolute left-4 top-4 rounded-full bg-amber-600 text-white text-xs font-bold px-3 py-1 shadow">
+                歯医者 向け
+              </span>
+            </div>
+            <div className="p-6 space-y-4">
+              <h3 className="text-xl font-bold text-stone-900">
+                <span className="text-amber-600">SEO1位の閲覧者</span>“だけ”に配信。最小予算で<strong>顕在層</strong>を刈り取る
+              </h3>
+
+              <ol className="space-y-2 text-stone-700">
+                <li className="flex items-start gap-2">
+                  <StepBadge>1</StepBadge>
+                  <span>例：「<strong>埼玉 歯医者</strong>」「<strong>埼玉 インプラント</strong>」で<strong>1位のサイトURL</strong>をターゲットに設定</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <StepBadge>2</StepBadge>
+                  <span>その<strong>閲覧者のみ</strong>に広告を出し、来院意欲の高い顧客へダイレクトに到達</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <StepBadge>3</StepBadge>
+                  <span>相手が投資した<strong>SEOや広告の流入</strong>を、<strong>最小予算</strong>で奪取</span>
+                </li>
+              </ol>
+
+              <ul className="text-sm text-stone-600 list-disc ps-5">
+                <li>「治療名 × 地域」などで<strong>自費比率の高いキーワード</strong>にも対応</li>
+                <li>URLは実在の上位サイトを運用開始時にヒアリングし<strong>30件まで指定</strong>可能</li>
+              </ul>
+
+              <div className="pt-2">
+                <button
+                  onClick={onContact}
+                  className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-5 py-3 font-semibold shadow transition"
+                >
+                  このパターンで無料相談
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* 小さなUIパーツ */
+function Tag({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-block rounded bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 text-[12px] font-medium">
+      {children}
+    </span>
+  );
+}
+function StepBadge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-white text-xs font-bold">
+      {children}
+    </span>
   );
 }
