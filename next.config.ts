@@ -1,19 +1,16 @@
 import type { NextConfig } from "next";
 
-export default nextConfig;
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+  // 画像最適化は使っていないが、将来 <Image> を使う場合にビルドを安定させるための保険
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'page.gensparksite.com',
-        port: '',
-        pathname: '/v1/base64_upload/**',
-      },
-    ],
+    unoptimized: true,
   },
-}
 
-module.exports = nextConfig
+  // ビルドで ESLint/TS をちゃんと効かせたいので明示（必要に応じて true に変更可）
+  eslint: { ignoreDuringBuilds: false },
+  typescript: { ignoreBuildErrors: false },
+};
+
+export default nextConfig;
