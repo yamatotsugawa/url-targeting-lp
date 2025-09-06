@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import { useRef, useState } from "react";
 
@@ -177,7 +178,7 @@ export default function Page() {
       <section className="bg-white py-16">
         <div className="mx-auto max-w-5xl px-5 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-stone-900 mb-8">選ばれる理由</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-8">
             <MetricCard kpi="400社+" label="導入実績" note="多業種・多エリアで活用" />
             <MetricCard kpi="可視化" label="専用レポートで即改善" note="数字で判断できる" />
             <MetricCard kpi="継続率90%" label="継続利用の高さ" note="成果に直結する運用" accent />
@@ -214,7 +215,7 @@ export default function Page() {
       <section className="bg-gradient-to-r from-amber-500 to-amber-600 py-16 text-white">
         <div className="mx-auto max-w-4xl px-5 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">まずは無料診断から。</h2>
-        <p className="text-lg mb-8 opacity-90">
+          <p className="text-lg mb-8 opacity-90">
             競合URLの初期提案と、HP採点の結果をもとに最短ルートをご提案します。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -329,11 +330,33 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
 /* Contact Form */
 function ContactForm() {
   const [loading, setLoading] = useState(false);
+
+  type ContactPayload = {
+    name: string;
+    company?: string;
+    email: string;
+    phone?: string;
+    siteUrl?: string;
+    message: string;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+
     const form = e.currentTarget;
-    const data = Object.fromEntries(new FormData(form) as any);
+    const fd = new FormData(form);
+
+    // 型安全に取り出し（any なし）
+    const data: ContactPayload = {
+      name: String(fd.get("name") ?? ""),
+      company: fd.get("company") ? String(fd.get("company")) : undefined,
+      email: String(fd.get("email") ?? ""),
+      phone: fd.get("phone") ? String(fd.get("phone")) : undefined,
+      siteUrl: fd.get("siteUrl") ? String(fd.get("siteUrl")) : undefined,
+      message: String(fd.get("message") ?? ""),
+    };
+
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -344,7 +367,8 @@ function ContactForm() {
         alert("送信しました。折り返しご連絡します。");
         form.reset();
       } else {
-        throw new Error("送信に失敗しました");
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(body.error || "送信に失敗しました");
       }
     } catch {
       alert("送信に失敗しました。時間をおいて再度お試しください。");
