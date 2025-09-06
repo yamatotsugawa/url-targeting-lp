@@ -1,7 +1,6 @@
-// src/app/api/contact/route.ts
 import { NextResponse } from "next/server";
 
-export const runtime = "nodejs"; // nodemailer は Node ランタイムで
+export const runtime = "nodejs";
 
 type Body = {
   name: string;
@@ -20,7 +19,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "必須項目が不足しています" }, { status: 400 });
     }
 
-    // ← ここで動的 import（クライアントに混ざらないように）
     const nodemailer = (await import("nodemailer")).default;
 
     const transporter = nodemailer.createTransport({
@@ -33,7 +31,9 @@ export async function POST(req: Request) {
     });
 
     const to = process.env.SMTP_TO || "info@yamato-ai.com";
-    const from = process.env.SMTP_FROM || `Adaim LP <no-reply@${process.env.SMTP_HOST || "localhost"}>`;
+    const from =
+      process.env.SMTP_FROM ||
+      `Adaim LP <no-reply@${process.env.SMTP_HOST || "localhost"}>`;
 
     const text = `【Adaim LP お問い合わせ】
 
@@ -47,7 +47,6 @@ HP   : ${data.siteUrl || "-"}
 ${data.message}
 `;
 
-    // オーナー宛
     await transporter.sendMail({
       from,
       to,
@@ -56,7 +55,6 @@ ${data.message}
       replyTo: data.email,
     });
 
-    // 自動返信（任意）
     if (process.env.SMTP_AUTOREPLY !== "off") {
       await transporter.sendMail({
         from,
@@ -75,11 +73,10 @@ info@yamato-ai.com`,
     }
 
     return NextResponse.json({ ok: true });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : typeof err === "string" ? err : "メール送信に失敗しました";
     console.error(err);
-    return NextResponse.json(
-      { ok: false, error: err?.message || "メール送信に失敗しました" },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
