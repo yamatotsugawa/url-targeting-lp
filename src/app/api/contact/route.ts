@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+
 export const runtime = "nodejs";
 
 type Body = {
-  name: string; email: string; company?: string; phone?: string; siteUrl?: string; message: string;
+  name: string;
+  email: string;
+  company?: string;
+  phone?: string;
+  siteUrl?: string;
+  message: string;
 };
 
 const must = (k: string) => {
@@ -30,16 +36,18 @@ export async function POST(req: Request) {
     const transporter = nodemailer.createTransport({
       host,
       port,
-      secure: isSSL,              // 465=SSL / 587=STARTTLS
+      secure: isSSL,                 // 465=SSL / 587=STARTTLS
       auth: { user, pass },
       authMethod: "LOGIN",
       requireTLS: !isSSL,
       tls: !isSSL ? { minVersion: "TLSv1.2" } : undefined,
     });
 
+    // 接続・認証の事前検証
     await transporter.verify();
 
-    const text = `【Adaim LP お問い合わせ】
+    // 管理者向け通知メール（あなたに届く方）
+    const adminText = `【Adaim LP お問い合わせ】
 お名前: ${d.name}
 会社名: ${d.company || "-"}
 メール: ${d.email}
@@ -48,22 +56,44 @@ HP   : ${d.siteUrl || "-"}
 --- メッセージ ---
 ${d.message}
 `;
-
     await transporter.sendMail({
-      from: fromHeader,                 // 表示用
+      from: fromHeader,
       to,
       subject: `Adaim LP: お問い合わせ - ${d.name}`,
-      text,
+      text: adminText,
       replyTo: d.email,
-      envelope: { from: user, to },     // サーバ検査用（実送信者）
+      envelope: { from: user, to },   // 実送信者は認証ユーザー
     });
 
+    // 自動返信（OFFにしたい場合は、ENVに SMTP_AUTOREPLY=off を設定）
     if (process.env.SMTP_AUTOREPLY !== "off") {
+      const autoText = `${d.name} 様
+
+この度は Adaim（URLターゲティング）にお問い合わせいただき、ありがとうございます。
+担当より打ち合わせ日程の調整についてご連絡いたします。
+
+お急ぎ・即日での調整をご希望の場合は、下記の予約ページから
+ご都合の良い日時を直接ご指定ください。
+https://meeting.eeasy.jp/tetsugakuman/online
+
+―― お問い合わせ控え ――
+お名前: ${d.name}
+会社名: ${d.company || "-"}
+メール: ${d.email}
+電話  : ${d.phone || "-"}
+HP   : ${d.siteUrl || "-"}
+--- ご相談内容 ---
+${d.message}
+
+Adaim サポート
+info@yamato-ai.jp
+`;
       await transporter.sendMail({
         from: fromHeader,
         to: d.email,
-        subject: "お問い合わせありがとうございます（Adaim）",
-        text: `${d.name} 様\n\nお問い合わせありがとうございます。内容を確認し折り返しご連絡します。\n\n--- お問い合わせ内容 ---\n${d.message}\n`,
+        subject: "【Adaim】お問い合わせありがとうございます",
+        text: autoText,
+        replyTo: user,                     // 返信は運用窓口へ
         envelope: { from: user, to: d.email },
       });
     }
@@ -74,8 +104,9 @@ ${d.message}
     let hint = "";
     if (/ENOTFOUND|getaddrinfo/i.test(msg)) hint = "SMTP_HOSTが誤っている可能性";
     else if (/ECONNREFUSED|ETIMEDOUT|timeout/i.test(msg)) hint = "ポート/暗号化の不一致（465=SSL / 587=STARTTLS）";
-    else if (/Invalid login|535|Authentication/i.test(msg)) hint = "SMTP_USER/PASS不整合（ユーザーはメールアドレス）";
+    else if (/Invalid login|535|Authentication/i.test(msg)) hint = "SMTP_USER/PASSの不整合（ユーザーはメールアドレス）";
     else if (/sender|from address|unauthorized|550/i.test(msg)) hint = "エンベロープFromと認証ユーザーの不一致 or 宛先が存在しない";
+
     console.error("CONTACT_ERROR:", msg);
     return NextResponse.json({ ok: false, error: msg, hint }, { status: 500 });
   }
