@@ -74,7 +74,7 @@ ${d.message}
 
 お急ぎ・即日での調整をご希望の場合は、下記の予約ページから
 ご都合の良い日時を直接ご指定ください。
-https://meeting.eeasy.jp/tetsugakuman/visitor
+https://meeting.eeasy.jp/tetsugakuman/url-targeting
 
 ―― お問い合わせ控え ――
 お名前: ${d.name}
