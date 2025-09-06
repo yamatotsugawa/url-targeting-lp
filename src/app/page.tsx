@@ -239,7 +239,7 @@ export default function Page() {
         <div className="rounded-2xl bg-white shadow-lg ring-1 ring-amber-200/60 p-8">
           <ContactForm />
           <p className="mt-4 text-xs text-stone-500 text-center">
-            送信先：info@yamato-ai.com<br />
+            送信先：info@yamato-ai.jp<br />
             ※ 送信いただいた情報は適切に管理し、営業目的以外では使用いたしません。
           </p>
         </div>
