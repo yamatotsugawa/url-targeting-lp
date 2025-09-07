@@ -331,34 +331,26 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
-/* Contact Form */
 function ContactForm() {
   const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  type ContactPayload = {
-    name: string;
-    company?: string;
-    email: string;
-    phone?: string;
-    siteUrl?: string;
-    message: string;
-  };
+  const meetingUrl = "https://meeting.eeasy.jp/tetsugakuman/online";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
     setLoading(true);
 
     const form = e.currentTarget;
     const fd = new FormData(form);
 
-    const data: ContactPayload = {
-      name: String(fd.get("name") ?? ""),
-      company: fd.get("company") ? String(fd.get("company")) : undefined,
-      email: String(fd.get("email") ?? ""),
-      phone: fd.get("phone") ? String(fd.get("phone")) : undefined,
-      siteUrl: fd.get("siteUrl") ? String(fd.get("siteUrl")) : undefined,
-      message: String(fd.get("message") ?? ""),
-    };
+    // （任意）Bot対策: 開始時刻とハニーポット
+    if (!fd.get("startedAt")) fd.set("startedAt", String(Date.now()));
+    if (!fd.get("fax")) fd.set("fax", ""); // 空なら正常
+
+    const data = Object.fromEntries(fd) as Record<string, unknown>;
 
     try {
       const res = await fetch("/api/contact", {
@@ -366,33 +358,116 @@ function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      if (res.ok) {
-        alert("送信しました。折り返しご連絡します。");
-        form.reset();
-      } else {
-        const body = (await res.json().catch(() => ({}))) as { error?: string; hint?: string };
-        alert(`送信に失敗しました。\n${body?.error ?? ""}${body?.hint ? `\nヒント: ${body.hint}` : ""}`);
+
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j?.error ?? `Server Error (${res.status})`);
       }
-    } catch {
-      alert("送信に失敗しました。時間をおいて再度お試しください。");
+
+      // 送信成功 → GA4 にイベント送信（コンバージョンにマーク可能）
+      try {
+        // @ts-ignore
+        window.gtag?.("event", "generate_lead", { source: "contact_form" });
+      } catch {}
+
+      form.reset();
+      setSent(true);
+    } catch (err: any) {
+      setError(err?.message ?? "送信に失敗しました。時間をおいて再度お試しください。");
     } finally {
       setLoading(false);
     }
   };
 
+  // 成功表示（同一ページ内で完結）
+  if (sent) {
+    return (
+      <div className="space-y-6 text-center">
+        <div className="rounded-2xl bg-emerald-50 ring-1 ring-emerald-200 px-6 py-10">
+          <h3 className="text-2xl font-extrabold text-emerald-800 mb-2">送信ありがとうございました！</h3>
+          <p className="text-stone-700">
+            担当より日程調整のご連絡を差し上げます。<br />
+            お急ぎの方は、下記から直接日程をご予約ください。
+          </p>
+          <div className="mt-6">
+            <a
+              href={meetingUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-block rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 font-semibold shadow"
+            >
+              いますぐ日程を予約する
+            </a>
+          </div>
+        </div>
+        <p className="text-xs text-stone-500">
+          受付メールが届かない場合は <span className="font-medium">info@yamato-ai.com</span> までご連絡ください。
+        </p>
+      </div>
+    );
+  }
+
+  // 通常フォーム
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* ハニーポット & 経過時間（Bot対策・任意） */}
+      <input type="text" name="fax" tabIndex={-1} autoComplete="off" className="hidden" />
+      <input type="hidden" name="startedAt" value={String(Date.now())} />
+
       <div className="grid md:grid-cols-2 gap-4">
-        <FormField name="name" label="お名前 *" placeholder="山田太郎" required />
-        <FormField name="company" label="会社名" placeholder="株式会社◯◯◯" />
+        <div>
+          <label className="block text-sm font-medium mb-2 text-stone-700">お名前 *</label>
+          <input
+            name="name"
+            required
+            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+            placeholder="山田太郎"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2 text-stone-700">会社名</label>
+          <input
+            name="company"
+            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+            placeholder="株式会社◯◯◯"
+          />
+        </div>
       </div>
+
       <div className="grid md:grid-cols-2 gap-4">
-        <FormField type="email" name="email" label="メールアドレス *" placeholder="example@company.com" required />
-        <FormField type="tel" name="phone" label="電話番号" placeholder="03-1234-5678" />
+        <div>
+          <label className="block text-sm font-medium mb-2 text-stone-700">メールアドレス *</label>
+          <input
+            type="email"
+            name="email"
+            required
+            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+            placeholder="example@company.com"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2 text-stone-700">電話番号</label>
+          <input
+            type="tel"
+            name="phone"
+            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+            placeholder="03-1234-5678"
+          />
+        </div>
       </div>
-      <FormField type="url" name="siteUrl" label="HPのURL" placeholder="https://example.com" />
+
       <div>
-        <label className="block text-sm font-medium mb-2 text-stone-900">ご相談内容 *</label>
+        <label className="block text-sm font-medium mb-2 text-stone-700">HPのURL</label>
+        <input
+          type="url"
+          name="siteUrl"
+          placeholder="https://example.com"
+          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2 text-stone-700">ご相談内容 *</label>
         <textarea
           name="message"
           rows={5}
@@ -401,6 +476,13 @@ function ContactForm() {
           placeholder="現在の広告運用の課題や、Adaimについて知りたいことをお聞かせください。"
         />
       </div>
+
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          {error}
+        </p>
+      )}
+
       <button
         disabled={loading}
         className="w-full rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white px-6 py-4 font-semibold shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed"
@@ -410,6 +492,7 @@ function ContactForm() {
     </form>
   );
 }
+
 
 function FormField({
   name,
