@@ -50,7 +50,7 @@ export default function Page() {
             onClick={goContact}
             className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-8 py-4 font-semibold shadow-lg transition-all hover:shadow-xl hover:scale-105"
           >
-            無料診断を申し込む
+            無料相談を申し込む
           </button>
           <button
             onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
@@ -244,7 +244,7 @@ export default function Page() {
       {/* CTA */}
       <section className="bg-gradient-to-r from-amber-500 to-amber-600 py-16 text-white">
         <div className="mx-auto max-w-4xl px-5 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">まずは無料診断から。</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">まずは無料相談から。</h2>
           <p className="text-lg mb-8 opacity-90">
             競合URLの初期提案と、HP採点の結果をもとに最短ルートをご提案します。
           </p>
