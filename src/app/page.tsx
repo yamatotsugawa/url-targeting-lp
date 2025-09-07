@@ -195,9 +195,36 @@ export default function Page() {
           <h2 className="text-2xl md:text-3xl font-bold text-stone-900 text-center mb-12">よくある質問</h2>
           <div className="space-y-6">
             <FAQItem
-              question="無料診断では何をしてくれますか？"
-              answer="HP採点（ファーストビュー／導線／速度など）と、URLターゲティングで指定すべき競合URLの初期リストをご提案します。"
-            />
+        question="無料診断はありますか？"
+        answer={
+          <>
+            現在は<strong>ご契約後</strong>に、初月のオンボーディングとして
+            <strong>無料で以下の3点</strong>を実施します。契約前の段階では個社別の診断は行っておりません。
+            <div className="mt-4 rounded-xl bg-amber-50 ring-1 ring-amber-200 p-5">
+              <p className="font-semibold text-amber-800">
+                契約後、無料で実施する3つのサポート
+              </p>
+              <ol className="list-decimal pl-5 mt-2 space-y-1 text-stone-800">
+                <li>
+                  <strong>HPの評価を診断</strong>
+                  （構造・導線・CTA・読み込み速度・モバイル最適化 など）
+                </li>
+                <li>
+                  <strong>狙うべきキーワードの上位を割り出し</strong>
+                  （地域・業種・検索意図を加味した優先キーワード選定）
+                </li>
+                <li>
+                  <strong>選定キーワードの上位HPをターゲティング登録</strong>
+                  （上位サイトのURLを抽出し、広告配信先として設定）
+                </li>
+              </ol>
+              <p className="text-sm text-stone-600 mt-3">
+                ※ 実施目安：1〜3営業日。結果レポートを共有し、配信方針と予算配分をご提案します。
+              </p>
+            </div>
+          </>
+        }
+      />
             <FAQItem
               question="初期設定は大変ですか？"
               answer="初期のサイト分析・競合分析・配信設計は当方で実施します。配信要件とURL候補の共有だけで開始できます。"
@@ -242,7 +269,7 @@ export default function Page() {
         <div className="rounded-2xl bg-white shadow-lg ring-1 ring-amber-200/60 p-8">
           <ContactForm />
           <p className="mt-4 text-xs text-stone-500 text-center">
-            送信先：info@yamato-ai.com<br />
+            送信先：info@yamato-ai.jp<br />
             ※ 送信いただいた情報は適切に管理し、営業目的以外では使用いたしません。
           </p>
         </div>
@@ -315,7 +342,7 @@ function MetricCard({ kpi, label, note, accent = false }: { kpi: string; label: 
   );
 }
 
-function FAQItem({ question, answer }: { question: string; answer: string }) {
+function FAQItem({ question, answer }: { question: string; answer: React.ReactNode; }) {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="bg-white rounded-xl shadow-sm border border-stone-200">
@@ -411,7 +438,7 @@ function ContactForm() {
         </div>
         <p className="text-xs text-stone-500">
           受付メールが届かない場合は{" "}
-          <span className="font-medium">info@yamato-ai.com</span> までご連絡ください。
+          <span className="font-medium">info@yamato-ai.jp</span> までご連絡ください。
         </p>
       </div>
     );
