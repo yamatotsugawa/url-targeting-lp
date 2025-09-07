@@ -3,6 +3,8 @@ import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
 
+
+
 type Body = {
   name: string;
   email: string;
@@ -30,7 +32,7 @@ export async function POST(req: Request) {
     const user = must("SMTP_USER");
     const pass = must("SMTP_PASS");
     const to = process.env.SMTP_TO || "info@yamato-ai.jp";
-    const fromHeader = process.env.SMTP_FROM || `Adaim LP <${user}>`;
+    const fromHeader = process.env.SMTP_FROM || `URL Targeting LP <${user}>`;
 
     const isSSL = port === 465;
     const transporter = nodemailer.createTransport({
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
     await transporter.verify();
 
     // 管理者向け通知メール（あなたに届く方）
-    const adminText = `【Adaim LP お問い合わせ】
+    const adminText = `【URL Targeting LP お問い合わせ】
 お名前: ${d.name}
 会社名: ${d.company || "-"}
 メール: ${d.email}
@@ -59,7 +61,7 @@ ${d.message}
     await transporter.sendMail({
       from: fromHeader,
       to,
-      subject: `Adaim LP: お問い合わせ - ${d.name}`,
+      subject: `URL Targeting LP: お問い合わせ - ${d.name}`,
       text: adminText,
       replyTo: d.email,
       envelope: { from: user, to },   // 実送信者は認証ユーザー
@@ -69,7 +71,7 @@ ${d.message}
     if (process.env.SMTP_AUTOREPLY !== "off") {
       const autoText = `${d.name} 様
 
-この度は Adaim（URLターゲティング）にお問い合わせいただき、ありがとうございます。
+この度はURLターゲティングにお問い合わせいただき、ありがとうございます。
 担当より打ち合わせ日程の調整についてご連絡いたします。
 
 お急ぎ・即日での調整をご希望の場合は、下記の予約ページから
@@ -85,13 +87,13 @@ HP   : ${d.siteUrl || "-"}
 --- ご相談内容 ---
 ${d.message}
 
-Adaim サポート
+URL Targeting サポート
 info@yamato-ai.jp
 `;
       await transporter.sendMail({
         from: fromHeader,
         to: d.email,
-        subject: "【Adaim】お問い合わせありがとうございます",
+        subject: "【URL Targeting】お問い合わせありがとうございます",
         text: autoText,
         replyTo: user,                     // 返信は運用窓口へ
         envelope: { from: user, to: d.email },
