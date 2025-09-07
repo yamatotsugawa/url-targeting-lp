@@ -364,7 +364,7 @@ function ContactForm() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const meetingUrl = "https://meeting.eeasy.jp/tetsugakuman/online";
+  const meetingUrl = "https://meeting.eeasy.jp/tetsugakuman/url-targeting";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
