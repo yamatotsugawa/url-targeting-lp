@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import Image from "next/image";
 import { useRef, useState } from "react";
@@ -14,7 +13,7 @@ export default function Page() {
         <div className="mx-auto max-w-6xl px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="inline-block w-2.5 h-2.5 rounded-full bg-amber-500" />
-            <p className="font-bold tracking-wide text-stone-700">Adaim | URLターゲティング</p>
+            <p className="font-bold tracking-wide text-stone-700">URLターゲティング</p>
           </div>
           <button
             onClick={goContact}
@@ -62,7 +61,7 @@ export default function Page() {
         </div>
       </section>
 
-      {/* ★ 事例（2カード） */}
+      {/* 事例（2カード） */}
       <UseCases onContact={goContact} />
 
       {/* お悩み → 解決提示（ニーズ喚起） */}
@@ -84,7 +83,7 @@ export default function Page() {
 
           {/* 解決ボックス */}
           <div className="mt-8 p-6 bg-white rounded-2xl shadow-sm ring-1 ring-amber-200/70">
-            <h3 className="text-xl font-bold text-stone-900 mb-2 text-center">その不満、Adaimが解決します。</h3>
+            <h3 className="text-xl font-bold text-stone-900 mb-2 text-center">その不満、この手法で解決します。</h3>
             <ul className="grid md:grid-cols-3 gap-3 text-stone-700">
               <li className="flex items-start gap-2"><span className="mt-1 inline-block w-2 h-2 rounded-full bg-amber-500" /> 顕在層（競合URL閲覧者・特定アプリ利用者）だけに配信</li>
               <li className="flex items-start gap-2"><span className="mt-1 inline-block w-2 h-2 rounded-full bg-amber-500" /> URL最大30件＋場所×性別×年齢の精密ターゲティング</li>
@@ -98,13 +97,13 @@ export default function Page() {
       <section id="features" className="py-12">
         <SlideBlock
           src="/slide-service.png"
-          alt="Adaimサービス紹介"
+          alt="サービス紹介"
           title="今使っている広告、本当に“届けたい人だけ”に届いていますか？"
           desc="“広く”ではなく、比較検討中の顧客（顕在層）だけへ。"
         />
         <SlideBlock
           src="/slide-feature.png"
-          alt="Adaimの特徴"
+          alt="手法の特徴"
           title="競合URL／特定アプリの利用者だけをターゲティング"
           desc="URLやアプリを最大30件まで指定。場所×性別×年齢も掛け合わせ可能。"
         />
@@ -219,7 +218,7 @@ export default function Page() {
       <section className="bg-gradient-to-r from-amber-500 to-amber-600 py-16 text-white">
         <div className="mx-auto max-w-4xl px-5 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">まずは無料診断から。</h2>
-        <p className="text-lg mb-8 opacity-90">
+          <p className="text-lg mb-8 opacity-90">
             競合URLの初期提案と、HP採点の結果をもとに最短ルートをご提案します。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -253,9 +252,9 @@ export default function Page() {
         <div className="mx-auto max-w-6xl px-5">
           <div className="flex items-center justify-center gap-2 mb-4">
             <span className="inline-block w-2.5 h-2.5 rounded-full bg-amber-500" />
-            <p className="font-bold tracking-wide text-stone-700">Adaim</p>
+            <p className="font-bold tracking-wide text-stone-700">URLターゲティング</p>
           </div>
-          <p>© {new Date().getFullYear()} Adaim. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} All rights reserved.</p>
         </div>
       </footer>
     </main>
@@ -292,12 +291,13 @@ function SlideBlock({ src, alt, title, desc }: { src: string; alt: string; title
       </div>
       <div className="rounded-2xl bg-white shadow-lg ring-1 ring-amber-200/60 p-4">
         <figure>
-          <img
+          <Image
             src={src}
             alt={alt}
-            loading="lazy"
-            decoding="async"
+            width={1600}
+            height={900}
             className="w-full h-auto rounded-lg"
+            priority={false}
           />
         </figure>
       </div>
@@ -331,6 +331,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
   );
 }
 
+/* Contact Form */
 function ContactForm() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -346,9 +347,9 @@ function ContactForm() {
     const form = e.currentTarget;
     const fd = new FormData(form);
 
-    // （任意）Bot対策: 開始時刻とハニーポット
+    // （任意）Bot対策
     if (!fd.get("startedAt")) fd.set("startedAt", String(Date.now()));
-    if (!fd.get("fax")) fd.set("fax", ""); // 空なら正常
+    if (!fd.get("fax")) fd.set("fax", "");
 
     const data = Object.fromEntries(fd) as Record<string, unknown>;
 
@@ -360,20 +361,26 @@ function ContactForm() {
       });
 
       if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
+        const j = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(j?.error ?? `Server Error (${res.status})`);
       }
 
-      // 送信成功 → GA4 にイベント送信（コンバージョンにマーク可能）
+      // 送信成功 → GA4 イベント発火
       try {
-        // @ts-ignore
+        // @ts-expect-error gtag は GA スクリプトで注入される
         window.gtag?.("event", "generate_lead", { source: "contact_form" });
-      } catch {}
+      } catch {
+        /* no-op */
+      }
 
       form.reset();
       setSent(true);
-    } catch (err: any) {
-      setError(err?.message ?? "送信に失敗しました。時間をおいて再度お試しください。");
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "送信に失敗しました。時間をおいて再度お試しください。";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -384,7 +391,9 @@ function ContactForm() {
     return (
       <div className="space-y-6 text-center">
         <div className="rounded-2xl bg-emerald-50 ring-1 ring-emerald-200 px-6 py-10">
-          <h3 className="text-2xl font-extrabold text-emerald-800 mb-2">送信ありがとうございました！</h3>
+          <h3 className="text-2xl font-extrabold text-emerald-800 mb-2">
+            送信ありがとうございました！
+          </h3>
           <p className="text-stone-700">
             担当より日程調整のご連絡を差し上げます。<br />
             お急ぎの方は、下記から直接日程をご予約ください。
@@ -401,7 +410,8 @@ function ContactForm() {
           </div>
         </div>
         <p className="text-xs text-stone-500">
-          受付メールが届かない場合は <span className="font-medium">info@yamato-ai.com</span> までご連絡ください。
+          受付メールが届かない場合は{" "}
+          <span className="font-medium">info@yamato-ai.com</span> までご連絡ください。
         </p>
       </div>
     );
@@ -473,7 +483,7 @@ function ContactForm() {
           rows={5}
           required
           className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all resize-none"
-          placeholder="現在の広告運用の課題や、Adaimについて知りたいことをお聞かせください。"
+          placeholder="現在の広告運用の課題や、この手法について知りたいことをお聞かせください。"
         />
       </div>
 
@@ -490,34 +500,6 @@ function ContactForm() {
         {loading ? "送信中..." : "無料相談を申し込む"}
       </button>
     </form>
-  );
-}
-
-
-function FormField({
-  name,
-  label,
-  type = "text",
-  required = false,
-  placeholder,
-}: {
-  name: string;
-  label: string;
-  type?: string;
-  required?: boolean;
-  placeholder?: string;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium mb-2 text-stone-900">{label}</label>
-      <input
-        name={name}
-        type={type}
-        required={required}
-        placeholder={placeholder}
-        className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-      />
-    </div>
   );
 }
 
