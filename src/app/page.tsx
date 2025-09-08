@@ -358,13 +358,12 @@ function FAQItem({ question, answer }: { question: string; answer: React.ReactNo
   );
 }
 
-/* Contact Form */
 function ContactForm() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const meetingUrl = "https://meeting.eeasy.jp/tetsugakuman/url-targeting";
+  const meetingUrl = "https://meeting.eeasy.jp/tetsugakuman/online";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -374,17 +373,27 @@ function ContactForm() {
     const form = e.currentTarget;
     const fd = new FormData(form);
 
-    // （任意）Bot対策
+    // Bot対策（任意）
     if (!fd.get("startedAt")) fd.set("startedAt", String(Date.now()));
     if (!fd.get("fax")) fd.set("fax", "");
 
-    const data = Object.fromEntries(fd) as Record<string, unknown>;
+    // 任意項目も含めて安全に文字列化
+    const payload = {
+      name: String(fd.get("name") ?? ""),
+      company: String(fd.get("company") ?? ""),
+      email: String(fd.get("email") ?? ""),
+      phone: String(fd.get("phone") ?? ""),
+      siteUrl: String(fd.get("siteUrl") ?? ""),
+      message: String(fd.get("message") ?? ""), // ← 空でもOK
+      startedAt: String(fd.get("startedAt") ?? ""),
+      fax: String(fd.get("fax") ?? ""),
+    };
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -392,7 +401,7 @@ function ContactForm() {
         throw new Error(j?.error ?? `Server Error (${res.status})`);
       }
 
-      // 送信成功 → GA4 イベント発火
+      // GA4 イベント（任意）
       try {
         // @ts-expect-error gtag は GA スクリプトで注入される
         window.gtag?.("event", "generate_lead", { source: "contact_form" });
@@ -403,17 +412,17 @@ function ContactForm() {
       form.reset();
       setSent(true);
     } catch (err: unknown) {
-      const msg =
+      setError(
         err instanceof Error
           ? err.message
-          : "送信に失敗しました。時間をおいて再度お試しください。";
-      setError(msg);
+          : "送信に失敗しました。時間をおいて再度お試しください。"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // 成功表示（同一ページ内で完結）
+  // 成功表示（同一ページで完結）
   if (sent) {
     return (
       <div className="space-y-6 text-center">
@@ -438,108 +447,110 @@ function ContactForm() {
         </div>
         <p className="text-xs text-stone-500">
           受付メールが届かない場合は{" "}
-          <span className="font-medium">info@yamato-ai.jp</span> までご連絡ください。
+          <span className="font-medium">info@yamato-ai.com</span> までご連絡ください。
         </p>
       </div>
     );
   }
 
-  // 通常フォーム
-return (
-  <form onSubmit={handleSubmit} className="space-y-6">
-    {/* ハニーポット & 経過時間（Bot対策・任意） */}
-    <input type="text" name="fax" tabIndex={-1} autoComplete="off" className="hidden" />
-    <input type="hidden" name="startedAt" value={String(Date.now())} />
+  // 通常フォーム（ご相談内容＝任意）
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* ハニーポット & 経過時間（Bot対策・任意） */}
+      <input type="text" name="fax" tabIndex={-1} autoComplete="off" className="hidden" />
+      <input type="hidden" name="startedAt" value={String(Date.now())} />
 
-    <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-2 text-stone-700">お名前 *</label>
+          <input
+            name="name"
+            required
+            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+            placeholder="山田太郎"
+            autoComplete="name"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2 text-stone-700">会社名</label>
+          <input
+            name="company"
+            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+            placeholder="株式会社◯◯◯"
+            autoComplete="organization"
+          />
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-2 text-stone-700">メールアドレス *</label>
+          <input
+            type="email"
+            name="email"
+            required
+            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+            placeholder="example@company.com"
+            autoComplete="email"
+            inputMode="email"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2 text-stone-700">電話番号</label>
+          <input
+            type="tel"
+            name="phone"
+            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+            placeholder="03-1234-5678"
+            autoComplete="tel"
+            inputMode="tel"
+          />
+        </div>
+      </div>
+
       <div>
-        <label className="block text-sm font-medium mb-2 text-stone-700">お名前 *</label>
+        <label className="block text-sm font-medium mb-2 text-stone-700">HPのURL</label>
         <input
-          name="name"
-          required
+          type="url"
+          name="siteUrl"
+          placeholder="https://example.com"
           className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-          placeholder="山田太郎"
-          autoComplete="name"
+          autoComplete="url"
+          inputMode="url"
         />
       </div>
+
+      {/* ← 任意化（required削除／任意表記追加） */}
       <div>
-        <label className="block text-sm font-medium mb-2 text-stone-700">会社名</label>
-        <input
-          name="company"
-          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-          placeholder="株式会社◯◯◯"
-          autoComplete="organization"
+        <label className="block text-sm font-medium mb-2 text-stone-700">
+          ご相談内容 <span className="text-stone-400 text-xs">(任意)</span>
+        </label>
+        <textarea
+          name="message"
+          rows={5}
+          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all resize-none"
+          placeholder="現状の課題や知りたいこと（空欄でもOK）"
+          aria-required={false}
+          defaultValue=""
         />
       </div>
-    </div>
 
-    <div className="grid md:grid-cols-2 gap-4">
-      <div>
-        <label className="block text-sm font-medium mb-2 text-stone-700">メールアドレス *</label>
-        <input
-          type="email"
-          name="email"
-          required
-          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-          placeholder="example@company.com"
-          autoComplete="email"
-          inputMode="email"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium mb-2 text-stone-700">電話番号</label>
-        <input
-          type="tel"
-          name="phone"
-          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-          placeholder="03-1234-5678"
-          autoComplete="tel"
-          inputMode="tel"
-        />
-      </div>
-    </div>
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          {error}
+        </p>
+      )}
 
-    <div>
-      <label className="block text-sm font-medium mb-2 text-stone-700">HPのURL</label>
-      <input
-        type="url"
-        name="siteUrl"
-        placeholder="https://example.com"
-        className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-        autoComplete="url"
-        inputMode="url"
-      />
-    </div>
+      <button
+        disabled={loading}
+        className="w-full rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white px-6 py-4 font-semibold shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed"
+      >
+        {loading ? "送信中..." : "無料相談を申し込む"}
+      </button>
+    </form>
+  );
+}
 
-    {/* ← 任意化（required削除／任意表記追加） */}
-    <div>
-      <label className="block text-sm font-medium mb-2 text-stone-700">
-        ご相談内容 <span className="text-stone-400 text-xs">(任意)</span>
-      </label>
-      <textarea
-        name="message"
-        rows={5}
-        className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all resize-none"
-        placeholder="現状の課題や知りたいこと（空欄でもOK）"
-        aria-required={false}
-        defaultValue=""
-      />
-    </div>
-
-    {error && (
-      <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-        {error}
-      </p>
-    )}
-
-    <button
-      disabled={loading}
-      className="w-full rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white px-6 py-4 font-semibold shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed"
-    >
-      {loading ? "送信中..." : "無料相談を申し込む"}
-    </button>
-  </form>
-);
 
 
 /* =========================
