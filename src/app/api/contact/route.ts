@@ -3,16 +3,22 @@ import nodemailer from "nodemailer";
 
 export const runtime = "nodejs";
 
-
-
+// 受信するJSONの型（messageは任意）
 type Body = {
   name: string;
   email: string;
   company?: string;
   phone?: string;
   siteUrl?: string;
-  message: string;
+  message?: string; // ← 任意化
 };
+
+// ヘッダーインジェクション等の簡易サニタイズ
+const clean = (v: unknown, max = 4000) =>
+  String(v ?? "")
+    .replace(/[\r\n]+/g, " ")
+    .trim()
+    .slice(0, max);
 
 const must = (k: string) => {
   const v = process.env[k];
@@ -22,9 +28,23 @@ const must = (k: string) => {
 
 export async function POST(req: Request) {
   try {
-    const d = (await req.json()) as Body;
-    if (!d.name || !d.email || !d.message) {
-      return NextResponse.json({ ok: false, error: "必須項目が不足しています" }, { status: 400 });
+    const json = (await req.json()) as Body;
+
+    // 受取値の正規化（未入力でも安全に文字列化）
+    const name = clean(json.name, 200);
+    const email = clean(json.email, 320);
+    const company = clean(json.company, 200);
+    const phone = clean(json.phone, 100);
+    const siteUrl = clean(json.siteUrl, 500);
+    const rawMessage = clean(json.message, 4000);
+    const safeMessage = rawMessage || "（未入力）"; // ← 空のときのフォールバック
+
+    // 必須は name と email のみ
+    if (!name || !email) {
+      return NextResponse.json(
+        { ok: false, error: "必須項目（お名前・メールアドレス）が不足しています" },
+        { status: 400 }
+      );
     }
 
     const host = must("SMTP_HOST");
@@ -38,38 +58,39 @@ export async function POST(req: Request) {
     const transporter = nodemailer.createTransport({
       host,
       port,
-      secure: isSSL,                 // 465=SSL / 587=STARTTLS
+      secure: isSSL, // 465=SSL
       auth: { user, pass },
       authMethod: "LOGIN",
-      requireTLS: !isSSL,
+      requireTLS: !isSSL, // 587等はSTARTTLS
       tls: !isSSL ? { minVersion: "TLSv1.2" } : undefined,
     });
 
-    // 接続・認証の事前検証
+    // SMTP接続・認証の事前確認
     await transporter.verify();
 
-    // 管理者向け通知メール（あなたに届く方）
+    // 管理者向け通知メール
     const adminText = `【URL Targeting LP お問い合わせ】
-お名前: ${d.name}
-会社名: ${d.company || "-"}
-メール: ${d.email}
-電話  : ${d.phone || "-"}
-HP   : ${d.siteUrl || "-"}
+お名前: ${name}
+会社名: ${company || "-"}
+メール: ${email}
+電話  : ${phone || "-"}
+HP   : ${siteUrl || "-"}
 --- メッセージ ---
-${d.message}
+${safeMessage}
 `;
+
     await transporter.sendMail({
       from: fromHeader,
       to,
-      subject: `URL Targeting LP: お問い合わせ - ${d.name}`,
+      subject: `URL Targeting LP: お問い合わせ - ${name}`,
       text: adminText,
-      replyTo: d.email,
-      envelope: { from: user, to },   // 実送信者は認証ユーザー
+      replyTo: { name, address: email },
+      envelope: { from: user, to }, // 実送信者は認証ユーザー
     });
 
-    // 自動返信（OFFにしたい場合は、ENVに SMTP_AUTOREPLY=off を設定）
+    // 自動返信（OFFにしたい場合は SMTP_AUTOREPLY=off）
     if (process.env.SMTP_AUTOREPLY !== "off") {
-      const autoText = `${d.name} 様
+      const autoText = `${name} 様
 
 この度はURLターゲティングにお問い合わせいただき、ありがとうございます。
 担当より打ち合わせ日程の調整についてご連絡いたします。
@@ -79,24 +100,25 @@ ${d.message}
 https://meeting.eeasy.jp/tetsugakuman/url-targeting
 
 ―― お問い合わせ控え ――
-お名前: ${d.name}
-会社名: ${d.company || "-"}
-メール: ${d.email}
-電話  : ${d.phone || "-"}
-HP   : ${d.siteUrl || "-"}
+お名前: ${name}
+会社名: ${company || "-"}
+メール: ${email}
+電話  : ${phone || "-"}
+HP   : ${siteUrl || "-"}
 --- ご相談内容 ---
-${d.message}
+${safeMessage}
 
 URL Targeting サポート
 info@yamato-ai.jp
 `;
+
       await transporter.sendMail({
         from: fromHeader,
-        to: d.email,
+        to: email,
         subject: "【URL Targeting】お問い合わせありがとうございます",
         text: autoText,
-        replyTo: user,                     // 返信は運用窓口へ
-        envelope: { from: user, to: d.email },
+        replyTo: user,
+        envelope: { from: user, to: email },
       });
     }
 

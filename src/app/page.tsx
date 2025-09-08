@@ -445,90 +445,102 @@ function ContactForm() {
   }
 
   // 通常フォーム
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* ハニーポット & 経過時間（Bot対策・任意） */}
-      <input type="text" name="fax" tabIndex={-1} autoComplete="off" className="hidden" />
-      <input type="hidden" name="startedAt" value={String(Date.now())} />
+return (
+  <form onSubmit={handleSubmit} className="space-y-6">
+    {/* ハニーポット & 経過時間（Bot対策・任意） */}
+    <input type="text" name="fax" tabIndex={-1} autoComplete="off" className="hidden" />
+    <input type="hidden" name="startedAt" value={String(Date.now())} />
 
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-2 text-stone-700">お名前 *</label>
-          <input
-            name="name"
-            required
-            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-            placeholder="山田太郎"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2 text-stone-700">会社名</label>
-          <input
-            name="company"
-            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-            placeholder="株式会社◯◯◯"
-          />
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-2 text-stone-700">メールアドレス *</label>
-          <input
-            type="email"
-            name="email"
-            required
-            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-            placeholder="example@company.com"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2 text-stone-700">電話番号</label>
-          <input
-            type="tel"
-            name="phone"
-            className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-            placeholder="03-1234-5678"
-          />
-        </div>
-      </div>
-
+    <div className="grid md:grid-cols-2 gap-4">
       <div>
-        <label className="block text-sm font-medium mb-2 text-stone-700">HPのURL</label>
+        <label className="block text-sm font-medium mb-2 text-stone-700">お名前 *</label>
         <input
-          type="url"
-          name="siteUrl"
-          placeholder="https://example.com"
-          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-2 text-stone-700">ご相談内容 *</label>
-        <textarea
-          name="message"
-          rows={5}
+          name="name"
           required
-          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all resize-none"
-          placeholder="現在の広告運用の課題や、この手法について知りたいことをお聞かせください。"
+          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+          placeholder="山田太郎"
+          autoComplete="name"
         />
       </div>
+      <div>
+        <label className="block text-sm font-medium mb-2 text-stone-700">会社名</label>
+        <input
+          name="company"
+          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+          placeholder="株式会社◯◯◯"
+          autoComplete="organization"
+        />
+      </div>
+    </div>
 
-      {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-          {error}
-        </p>
-      )}
+    <div className="grid md:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-sm font-medium mb-2 text-stone-700">メールアドレス *</label>
+        <input
+          type="email"
+          name="email"
+          required
+          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+          placeholder="example@company.com"
+          autoComplete="email"
+          inputMode="email"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium mb-2 text-stone-700">電話番号</label>
+        <input
+          type="tel"
+          name="phone"
+          className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+          placeholder="03-1234-5678"
+          autoComplete="tel"
+          inputMode="tel"
+        />
+      </div>
+    </div>
 
-      <button
-        disabled={loading}
-        className="w-full rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white px-6 py-4 font-semibold shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed"
-      >
-        {loading ? "送信中..." : "無料相談を申し込む"}
-      </button>
-    </form>
-  );
-}
+    <div>
+      <label className="block text-sm font-medium mb-2 text-stone-700">HPのURL</label>
+      <input
+        type="url"
+        name="siteUrl"
+        placeholder="https://example.com"
+        className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all"
+        autoComplete="url"
+        inputMode="url"
+      />
+    </div>
+
+    {/* ← 任意化（required削除／任意表記追加） */}
+    <div>
+      <label className="block text-sm font-medium mb-2 text-stone-700">
+        ご相談内容 <span className="text-stone-400 text-xs">(任意)</span>
+      </label>
+      <textarea
+        name="message"
+        rows={5}
+        className="w-full rounded-lg border border-stone-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all resize-none"
+        placeholder="現状の課題や知りたいこと（空欄でもOK）"
+        aria-required={false}
+        defaultValue=""
+      />
+    </div>
+
+    {error && (
+      <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        {error}
+      </p>
+    )}
+
+    <button
+      disabled={loading}
+      className="w-full rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white px-6 py-4 font-semibold shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed"
+    >
+      {loading ? "送信中..." : "無料相談を申し込む"}
+    </button>
+  </form>
+);
+
 
 /* =========================
  * 事例セクション（2カード）
