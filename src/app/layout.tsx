@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     default: "URLターゲティング – ライバルの顧客、堂々と取りにいく。",
     template: "%s",
   },
+  verification: {
+    google: "NdY244RlFtq46AyxMJZ7Rd8oDhGqcLoPm9859T7QdcQ", // ← これを追加
+  },
   description:
     "競合サイトや特定アプリの利用者“だけ”へ配信。最大30件のURL指定×場所・性別・年齢の精密ターゲティング。継続率90%、導入400社超。",
   openGraph: {
