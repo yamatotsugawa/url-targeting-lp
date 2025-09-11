@@ -33,7 +33,7 @@ export default function Page() {
 
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-stone-900 mb-4">
           短期で成果を出すために<br />
-          <span className="text-orange-600">"顕在化した顧客"だけを狙い撃ち</span>
+          <span className="text-orange-600">&ldquo;顕在化した顧客&rdquo;だけを狙い撃ち</span>
         </h1>
         <p className="mt-2 text-lg md:text-xl text-stone-700 max-w-4xl mx-auto leading-relaxed">
           成果に直結する広告運用「URLターゲティング」のご提案資料
@@ -46,6 +46,13 @@ export default function Page() {
           <ProcessCard icon="🎯" label="意志の強い顕在顧客「だけ」に広告を表示" accent />
           <Arrow />
           <ProcessCard icon="📈" label="コンバージョン率向上 × 成果直結型広告" />
+        </div>
+
+        {/* Benefit KPIs */}
+        <div className="mt-10 grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <BenefitCard kpi="最大30件" label="競合URLの指定が可能" />
+          <BenefitCard kpi="継続率90%" label="選ばれ続ける運用品質" accent />
+          <BenefitCard kpi="400社" label="実績（多業種で活用）" />
         </div>
 
         <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
@@ -290,6 +297,15 @@ export default function Page() {
 }
 
 /* ===== Components ===== */
+
+function BenefitCard({ kpi, label, accent = false }: { kpi: string; label: string; accent?: boolean }) {
+  return (
+    <div className={`bg-white rounded-xl p-6 shadow-sm border ${accent ? "border-orange-300" : "border-orange-100"}`}>
+      <div className={`text-3xl font-extrabold ${accent ? "text-orange-700" : "text-orange-600"} mb-1`}>{kpi}</div>
+      <div className="text-stone-800 font-medium">{label}</div>
+    </div>
+  );
+}
 
 function ProcessCard({ icon, label, accent = false }: { icon: string; label: string; accent?: boolean }) {
   return (
