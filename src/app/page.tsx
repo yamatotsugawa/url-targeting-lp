@@ -38,16 +38,6 @@ export default function Page() {
         <p className="mt-2 text-lg md:text-xl text-stone-700 max-w-4xl mx-auto leading-relaxed">
           成果に直結する広告運用「URLターゲティング」のご提案資料
         </p>
-
-        {/* プロセス図解 */}
-        <div className="mt-10 flex justify-center items-center gap-4 max-w-5xl mx-auto">
-          <ProcessCard icon="🔍" label="なんとなく調べる繁雑顧客ではなく" />
-          <Arrow />
-          <ProcessCard icon="🎯" label="意志の強い顕在顧客「だけ」に広告を表示" accent />
-          <Arrow />
-          <ProcessCard icon="📈" label="コンバージョン率向上 × 成果直結型広告" />
-        </div>
-
         {/* Benefit KPIs */}
         <div className="mt-10 grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           <BenefitCard kpi="最大30件" label="競合URLの指定が可能" />
@@ -584,18 +574,26 @@ function ContactForm() {
 
   if (sent) {
     return (
-      <div className="space-y-6 text-center">
-        <div className="rounded-2xl bg-emerald-50 ring-1 ring-emerald-200 px-6 py-10">
-          <h3 className="text-2xl font-extrabold text-emerald-800 mb-2">
-            送信ありがとうございました！
-          </h3>
-          <p className="text-stone-700">
-            担当より日程調整のご連絡を差し上げます。
-          </p>
-        </div>
-      </div>
-    );
-  }
+      <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-8 text-center">
+    <h3 className="text-2xl font-extrabold text-emerald-700 mb-3">
+      送信ありがとうございました！
+    </h3>
+    <p className="text-stone-700">
+      担当より日程調整のご連絡を差し上げます。
+    </p>
+
+    <div className="mt-6">
+      <a
+        href="https://meeting.eeasy.jp/tetsugakuman/url-targeting"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-block rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 font-semibold transition-colors"
+      >
+        今すぐ日程を調整する
+      </a>
+    </div>
+  </div>
+)}
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
