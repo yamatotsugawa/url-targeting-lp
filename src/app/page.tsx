@@ -127,59 +127,109 @@ export default function Page() {
       {/* 利用例セクション */}
       <UseCaseSection />
 
-      {/* 料金体系 */}
+      {/* 料金体系 - 修正版 */}
       <section className="bg-white py-16">
         <div className="mx-auto max-w-6xl px-5">
-          <h2 className="text-3xl md:text-4xl font-bold text-stone-900 text-center mb-12">料金体系</h2>
+          {/* ヘッダー */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-stone-900 mb-4">
+              料金体系
+            </h2>
+            <p className="text-stone-600 mb-6">
+              継続率90%、400社が選ぶ実績あるプランをご用意しています
+            </p>
+            <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium">
+              <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+              初期設定費割引キャンペーン実施中（通常8万円→5万円）
+            </div>
+          </div>
           
-          <div className="grid md:grid-cols-3 gap-6">
-            <PricingCard
-              tier="まずはお試し"
-              clicks="1000クリック"
-              price="¥150,000"
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {/* スタータープラン（左・おすすめ） */}
+            <PricingCardBalanced
+              tier="スタータープラン"
+              subtitle="まずはお試しから"
+              clicks="1000~1500クリック"
+              price="¥148,000"
+              clickCost="¥98.7〜148"
               features={[
                 "初回バナー制作：無料",
                 "サイト分析：無料", 
                 "競合他社分析：無料",
-                "初期設定費：約8万円",
+                "初期設定費：8万円→5万円（期間限定）",
                 "広告表示回数/月：約10万回",
                 "指定URL数：最大30個",
                 "最低利用期間：6ヶ月"
               ]}
+              cardType="featured"
+              badge="おすすめ"
+              goContact={goContact}
             />
-            <PricingCard
-              tier="成果を感じて頂けたら"
-              clicks="2000クリック"
-              price="¥250,000"
+
+            {/* スタンダードプラン（中央） */}
+            <PricingCardBalanced
+              tier="スタンダードプラン"
+              subtitle="成果を感じて頂けたら"
+              clicks="2000~2500クリック"
+              price="¥238,000"
+              clickCost="¥95.2〜119"
               features={[
                 "初回バナー制作：無料",
                 "サイト分析：無料",
                 "競合他社分析：無料", 
-                "初期設定費：約8万円",
+                "初期設定費：8万円→5万円（期間限定）",
                 "広告表示回数/月：約20万回",
                 "指定URL数：最大30個",
-                "最低利用期間：6ヶ月"
+                "最低利用期間：6ヶ月",
               ]}
-              accent
+              cardType="standard"
+              goContact={goContact}
             />
-            <PricingCard
-              tier="最大限に効果を出す"
-              clicks="3000クリック"
-              price="¥350,000"
+
+            {/* プレミアムプラン（右） */}
+            <PricingCardBalanced
+              tier="プレミアムプラン"
+              subtitle="最大限に効果を出す"
+              clicks="3000~3500クリック"
+              price="¥328,000"
+              clickCost="¥93.7〜109"
               features={[
                 "初回バナー制作：無料",
                 "サイト分析：無料",
                 "競合他社分析：無料",
-                "初期設定費：約8万円", 
+                "初期設定費：8万円→5万円（期間限定）",
                 "広告表示回数/月：約30万回",
                 "指定URL数：最大30個",
-                "最低利用期間：6ヶ月"
+                "最低利用期間：6ヶ月",
               ]}
+              cardType="premium"
+              goContact={goContact}
             />
           </div>
 
+          {/* 実績・信頼性セクション */}
+          <div className="mt-12 bg-stone-50 rounded-2xl p-8 max-w-4xl mx-auto">
+            <h3 className="text-xl font-bold text-stone-800 text-center mb-6">
+              導入企業の実績データ
+            </h3>
+            <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div>
+                <div className="text-3xl font-bold text-orange-600">90%</div>
+                <div className="text-sm text-stone-600">継続率（6ヶ月以上）</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-orange-600">400社</div>
+                <div className="text-sm text-stone-600">導入実績</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-orange-600">280%</div>
+                <div className="text-sm text-stone-600">平均ROI達成</div>
+              </div>
+            </div>
+          </div>
+
           <div className="mt-8 text-center">
-            <p className="text-sm text-stone-600 mb-4">💰 その他オプションサービス</p>
+            <p className="text-sm text-stone-600 mb-4">その他オプションサービス</p>
             <div className="flex flex-wrap justify-center gap-4 text-sm text-stone-700">
               <span>• LP制作：5万円〜</span>
               <span>• リアル営業お見積り（首都圏）</span>
@@ -220,7 +270,7 @@ export default function Page() {
           <div className="space-y-6">
             <FAQItem
               question="最小予算はいくらから始められますか？"
-              answer="月額15万円（1000クリック）から開始可能です。初期設定費として約8万円が別途必要となります。"
+              answer="月額14.8万円（1000~1500クリック）から開始可能です。初期設定費は現在キャンペーンで無料となっております。"
             />
             <FAQItem
               question="どのような業界でも利用できますか？"
@@ -295,19 +345,6 @@ function BenefitCard({ kpi, label, accent = false }: { kpi: string; label: strin
       <div className="text-stone-800 font-medium">{label}</div>
     </div>
   );
-}
-
-function ProcessCard({ icon, label, accent = false }: { icon: string; label: string; accent?: boolean }) {
-  return (
-    <div className={`bg-white rounded-xl p-4 shadow-sm border text-center min-w-[200px] ${accent ? "border-orange-300 bg-orange-50" : "border-orange-100"}`}>
-      <div className="text-2xl mb-2">{icon}</div>
-      <div className={`text-sm font-medium ${accent ? "text-orange-800" : "text-stone-800"}`}>{label}</div>
-    </div>
-  );
-}
-
-function Arrow() {
-  return <div className="text-orange-500 text-2xl">→</div>;
 }
 
 function UseCaseSection() {
@@ -461,48 +498,112 @@ function UseCaseCard({
   );
 }
 
-function PricingCard({ 
+// 修正されたPricingCardコンポーネント
+function PricingCardBalanced({ 
   tier, 
+  subtitle,
   clicks, 
-  price, 
+  price,
+  clickCost,
   features, 
-  accent = false 
+  cardType,
+  badge,
+  goContact
 }: { 
   tier: string; 
+  subtitle: string;
   clicks: string; 
-  price: string; 
+  price: string;
+  clickCost: string;
   features: string[]; 
-  accent?: boolean; 
+  cardType: 'featured' | 'premium' | 'standard';
+  badge?: string;
+  goContact: () => void;
 }) {
+  const getCardStyles = () => {
+    switch (cardType) {
+      case 'featured':
+        return {
+          container: "bg-orange-50 rounded-2xl p-6 shadow-lg ring-2 ring-orange-400 relative transform hover:scale-105 transition-all",
+          priceColor: "text-orange-600",
+          button: "bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all",
+          buttonText: "このコースで申し込む"
+        };
+      case 'premium':
+        return {
+          container: "bg-white rounded-2xl p-6 shadow-lg ring-1 ring-stone-300",
+          priceColor: "text-stone-800",
+          button: "bg-stone-600 hover:bg-stone-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors",
+          buttonText: "このコースで申し込む"
+        };
+      case 'standard':
+        return {
+          container: "bg-white rounded-2xl p-6 shadow-lg ring-1 ring-stone-200",
+          priceColor: "text-stone-800", 
+          button: "bg-stone-500 hover:bg-stone-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors",
+          buttonText: "このコースで申し込む"
+        };
+      default:
+        return {
+          container: "bg-white rounded-2xl p-6 shadow-lg ring-1 ring-stone-200",
+          priceColor: "text-stone-800",
+          button: "bg-stone-500 hover:bg-stone-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors",
+          buttonText: "このコースで申し込む"
+        };
+    }
+  };
+
+  const styles = getCardStyles();
+
   return (
-    <div className={`bg-white rounded-2xl p-6 shadow-lg ring-1 ${accent ? "ring-orange-300 bg-orange-50" : "ring-orange-200"}`}>
-      <div className={`text-center mb-6 ${accent ? "text-white bg-orange-500" : "text-orange-600 bg-orange-100"} rounded-xl py-3`}>
-        <h3 className="font-bold">{tier}</h3>
-      </div>
-      
+    <div className={styles.container}>
+      {/* バッジ */}
+      {badge && (
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+          <div className="bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
+            {badge}
+          </div>
+        </div>
+      )}
+
+      {/* ヘッダー */}
       <div className="text-center mb-6">
-        <div className="text-sm text-stone-600 mb-1">クリック数/月（目安）</div>
-        <div className="text-2xl font-bold text-stone-900 mb-2">{clicks}</div>
-        <div className="text-sm text-stone-600 mb-1">月額利用料（システム利用料、広告配信）</div>
-        <div className="text-3xl font-extrabold text-orange-600">{price}</div>
+        <h3 className="text-xl font-bold text-stone-900 mb-2">{tier}</h3>
+        <p className="text-sm text-stone-600">{subtitle}</p>
       </div>
       
-      <ul className="space-y-2 mb-6">
+      {/* 価格セクション */}
+      <div className="text-center mb-6">
+        <div className="text-sm text-stone-600 mb-1">月額利用料（システム利用料、広告配信）</div>
+        <div className={`text-3xl font-extrabold ${styles.priceColor} mb-2`}>{price}</div>
+        <div className="text-sm text-stone-600 mb-2">クリック数/月（目安）</div>
+        <div className="text-lg font-semibold text-stone-800 mb-1">{clicks}</div>
+        <div className="text-xs text-stone-500">クリック単価：{clickCost}円</div>
+      </div>
+      
+      {/* 特典リスト */}
+      <ul className="space-y-2 mb-8">
         {features.map((feature, index) => (
-          <li key={index} className="flex items-center gap-2 text-sm">
-            <span className="text-orange-500">⭕</span>
-            <span className={`${feature.includes('無料') ? 'text-red-600 font-bold' : 'text-stone-700'}`}>
-              {feature.includes('無料') ? (
-                <span className="bg-red-100 px-2 py-1 rounded text-red-700 font-bold">
-                  {feature}
-                </span>
-              ) : (
-                feature
-              )}
+          <li key={index} className="flex items-start gap-2 text-sm">
+            <span className="text-orange-500 mt-1">○</span>
+            <span className={`text-stone-700 ${
+              feature.includes('無料') || feature.includes('付き')
+                ? 'font-medium' 
+                : ''
+            }`}>
+              {feature}
             </span>
           </li>
         ))}
       </ul>
+
+      {/* CTA ボタン */}
+      <button 
+        onClick={goContact}
+        className={`w-full ${styles.button}`}
+      >
+        {styles.buttonText}
+      </button>
     </div>
   );
 }
