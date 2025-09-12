@@ -591,7 +591,13 @@ function PricingCardBalanced({
                 ? 'font-medium' 
                 : ''
             }`}>
-              {feature}
+              {feature.includes('無料') ? (
+                <span className="bg-red-100 px-2 py-1 rounded-md text-red-700 font-semibold border border-red-200">
+                  {feature}
+                </span>
+              ) : (
+                feature
+              )}
             </span>
           </li>
         ))}
@@ -607,6 +613,7 @@ function PricingCardBalanced({
     </div>
   );
 }
+
 
 function FAQItem({ question, answer }: { question: string; answer: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
