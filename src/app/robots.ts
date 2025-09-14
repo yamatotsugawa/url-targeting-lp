@@ -1,9 +1,16 @@
+// src/app/robots.ts
 import type { MetadataRoute } from "next";
 
+const baseUrl = "https://url-targeting-lp.vercel.app";
+
 export default function robots(): MetadataRoute.Robots {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://url-targeting-lp.vercel.app";
   return {
-    rules: [{ userAgent: "*", allow: "/" }],
-    sitemap: `${base}/sitemap.xml`,
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      // 任意: 触られたくないパスがあれば disallow を追加
+      // disallow: ["/api/"],
+    },
+    sitemap: `${baseUrl}/sitemap.xml`,
   };
 }
