@@ -1,13 +1,22 @@
+// src/app/sitemap.ts
 import type { MetadataRoute } from "next";
 
+const baseUrl = "https://url-targeting-lp.vercel.app";
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://url-targeting-lp.vercel.app";
+  const now = new Date();
   return [
     {
-      url: `${base}/`,
-      lastModified: new Date(),
+      url: `${baseUrl}/`,
+      lastModified: now,
       changeFrequency: "weekly",
-      priority: 1,
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/thanks`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.3,
     },
   ];
 }
